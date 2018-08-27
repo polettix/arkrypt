@@ -23,6 +23,9 @@ main () {
       (regenlist)
          run_regenlist "$file"
          ;;
+      (squashlist)
+         run_squashlist
+         ;;
       (*)
          die "unknown command $command"
          ;;
@@ -51,9 +54,9 @@ encrypt_file_binary() {
 add_to_list() {
    local digest="$1" file="$2"
    {
-      [ -e 'akt.list' ] && gpg --output - --quiet --decrypt 'akt.list'
-      printf '%s %s\n' "$digest" "$file"
-   } | encrypt_stdin_ascii atk.list.tmp
+      [ -e 'akt.list' ] && cat akt.list
+      printf '%s %s\n' "$digest" "$file" | encrypt_stdin_ascii -
+   } > atk.list.tmp
    mv akt.list.tmp akt.list
 }
 
@@ -63,11 +66,11 @@ run_encrypt() {
    local digest="akt-$(md5sum "$file" | sed -e 's/^.*= *//;s/ .*//')"
    [ -e "$digest.gpg" ] && die "target $digest.gpg already exists"
 
-   printf '%s' "$file" | encrypt_stdin_ascii "$digest.name"
+   printf '%s\n' "$file" | encrypt_stdin_ascii "$digest.name"
    encrypt_file_binary "$file" "$digest.tmp"
    mv "$digest.tmp" "$digest.gpg"
 
-   [ -n "$ARKRYPT_DONT_LIST" ] || add_to_list "$digest" "$file"
+   add_to_list "$digest" "$file"
 }
 
 get_filename() {
@@ -92,7 +95,8 @@ run_decrypt() {
 
 run_list() {
    [ -e 'akt.list' ] || die 'no file listing akt.list present'
-   gpg --output - --quiet --decrypt akt.list
+   gpg --output - --quiet --allow-multiple-messages --decrypt akt.list \
+      2>/dev/null
 }
 
 run_regenlist() {
@@ -108,6 +112,12 @@ run_regenlist() {
       fi
       printf '%s %s\n' "$digest" "$name"
    done | encrypt_stdin_ascii akt.list.tmp
+   mv akt.list.tmp akt.list
+}
+
+run_squashlist() {
+   rm -f akt.list.tmp
+   run_list | encrypt_stdin_ascii akt.list.tmp
    mv akt.list.tmp akt.list
 }
 
