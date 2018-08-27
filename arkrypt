@@ -64,18 +64,18 @@ run_encrypt() {
    local file="$1"
    [ -r "$file" ] || die "cannot read $file"
    local digest="akt-$(md5sum "$file" | sed -e 's/^.*= *//;s/ .*//')"
-   [ -e "$digest.gpg" ] && die "target $digest.gpg already exists"
+   [ -e "$digest.data" ] && die "target $digest.data already exists"
 
    printf '%s\n' "$file" | encrypt_stdin_ascii "$digest.name"
    encrypt_file_binary "$file" "$digest.tmp"
-   mv "$digest.tmp" "$digest.gpg"
+   mv "$digest.tmp" "$digest.data"
 
    add_to_list "$digest" "$file"
 }
 
 get_filename() {
    local digest="${1%%.*}"
-   [ -e "$digest.gpg" ] || die "file $digest.gpg does not exist"
+   [ -e "$digest.data" ] || die "file $digest.data does not exist"
    [ -e "$digest.name" ] || die "file $digest.name does not exist"
    gpg --output - --quiet --decrypt "$digest.name"
 }
@@ -89,7 +89,7 @@ run_decrypt() {
    local digest="${1%%.*}"
    local filename="${2:-"$(get_filename "$digest")"}"
    [ -e "$filename" ] && die "target file $filename exists"
-   gpg --output "$filename" --quiet --decrypt "$digest.gpg"
+   gpg --output "$filename" --quiet --decrypt "$digest.data"
    printf '%s\n' "$filename"
 }
 
