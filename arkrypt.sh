@@ -48,7 +48,8 @@ encrypt_stdin_ascii() {
 }
 
 encrypt_file_binary() {
-   gpg -r "$keyid" -o "$2" --trust-model always -e "$1"
+   gpg -r "$keyid" -o "$2.tmp" --trust-model always -e "$1"
+   mv "$2.tmp" "$2"
 }
 
 add_to_list() {
@@ -67,8 +68,7 @@ run_encrypt() {
    [ -e "$digest.data" ] && die "target $digest.data already exists"
 
    printf '%s\n' "$file" | encrypt_stdin_ascii "$digest.name"
-   encrypt_file_binary "$file" "$digest.tmp"
-   mv "$digest.tmp" "$digest.data"
+   encrypt_file_binary "$file" "$digest.data"
 
    add_to_list "$digest" "$file"
 }
