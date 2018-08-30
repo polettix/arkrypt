@@ -8,7 +8,7 @@ PATH="/app:$PATH"
 
 export GNUPGHOME=/tmp/gnupg
 mkdir "$GNUPGHOME"
-chmod o-rwx "$GNUPGHOME"
+chmod og-rwx "$GNUPGHOME"
 cp /mnt/.gnupg/pubring.gpg /mnt/.gnupg/secring.gpg /mnt/.gnupg/trustdb.gpg \
    "$GNUPGHOME"
 
