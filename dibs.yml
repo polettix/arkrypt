@@ -62,6 +62,7 @@ definitions:
            program: |
               #!/bin/sh
               cat  >/suexec.local <<END
+              #!/bin/sh
               [ -e '/dev/console' ] && chmod a+rw /dev/console
               exec /suexec "\$@"
               END
