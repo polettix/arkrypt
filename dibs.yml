@@ -67,7 +67,12 @@ definitions:
            path:    install/plain-copy
            args:    [{path_cache: 'perl-app'}, '/app']
            user:    root
+         - type: immediate
+           program: |
+              #!/bin/sh
+              printf 'chmod a+rw /dev/console\n' > /suexec.local
+
       commit:
          tags: ['latest', *version]
-         entrypoint: ['/suexec', '-r', '/mnt/.gnupg', '-A', '/mnt', '--']
+         entrypoint: ['/suexec', '-r', '/mnt/.gnupg', '-A', '/mnt', '-s', '/suexec.local', '--']
          cmd: ['/app/docker-setup.sh']

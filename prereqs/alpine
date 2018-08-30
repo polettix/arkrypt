@@ -3,4 +3,3 @@ set -e
 apk --no-cache add perl gnupg py-pip
 pip install awscli
 rm -rf /root/.cache
-chmod a+rw /dev/console
