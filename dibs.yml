@@ -16,6 +16,7 @@ defaults:
          ['join', '.', *version_major, *version_minor, *version_patch]
       - function: &version_maj_min
          ['join', '.', *version_major, *version_minor]
+      - &gnupghome '/gnupg'
 
    dibspack:
       basic:
@@ -61,6 +62,8 @@ definitions:
          tags: ['latest', *version, *version_maj_min]
    bundle:
       from: 'arkrypt-runner:latest'
+      env:
+         GNUPGHOME: *gnupghome
       dibspacks:
          - default: basic
            path:    install/plain-copy
@@ -68,3 +71,5 @@ definitions:
            user:    root
       commit:
          tags: ['latest', *version]
+         entrypoint: ['/suexec', '-r', *gnupghome, '-A', '/mnt', '--']
+         cmd: ['/app/docker-setup.sh']
