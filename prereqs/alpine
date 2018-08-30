@@ -1,0 +1,5 @@
+#!/bin/sh
+set -e
+apk --no-cache add perl py-pip
+pip install awscli
+rm -rf /root/.cache
