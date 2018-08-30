@@ -40,4 +40,6 @@ else
    printf >&2 '%s\n' 'cannot set gnupg up properly'
 fi
 
+export GPG_TTY='/dev/console'
+
 exec /bin/sh
