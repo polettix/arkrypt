@@ -63,7 +63,7 @@ definitions:
               #!/bin/sh
               cat  >/suexec.local <<END
               [ -e '/dev/console' ] && chmod a+rw /dev/console
-              exec /suexec "$@"
+              exec /suexec "\$@"
               END
               chmod +x /suexec.local
       commit:
@@ -78,5 +78,5 @@ definitions:
            user:    root
       commit:
          tags: ['latest', *version]
-         entrypoint: ['/suexec.local', '-r', '/mnt/.gnupg', '-A', '/mnt', '-s', '/suexec.local', '--']
+         entrypoint: ['/suexec.local', '-r', '/mnt/.gnupg', '-A', '/mnt', '--']
          cmd: ['/app/docker-setup.sh']
