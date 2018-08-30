@@ -1,3 +1,8 @@
 /.cpanm
 /cpanfile
 /cpanfile.snapshot
+/.dibsignore
+/dibs.yml
+/.git
+/.gitignore
+/prereqs
