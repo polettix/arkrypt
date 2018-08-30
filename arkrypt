@@ -135,10 +135,22 @@ sub command_list ($config, $opts) {
 sub filename_for ($name) {
    $name =~ s{\..*}{}mxs;
    my $file_name = path($name . SUFFIX_NAME);
-   ouch 400, "no file named $file_name" unless $file_name->exists;
-   my $filename = run_or_die([ qw< gpg -o - --decrypt >, $file_name ]);
-   chomp($filename);
-   return $filename;
+   my $retval;
+   if ($file_name->exists) {
+      $retval = run_or_die([ qw< gpg -o - --decrypt >, $file_name ]);
+      chomp($retval);
+   }
+   elsif (defined(my $list = load_list())) {
+      for my $pair (split_list($list)) {
+         next unless $pair->[0] eq $name;
+         $retval = $pair->[1];
+      }
+   }
+   if (! defined($retval)) {
+      $retval = $name . SUFFIX_PLAIN;
+      say {*STDERR} "no filename, using default $retval";
+   }
+   return $retval;
 }
 
 sub command_filename ($config, $opts) {
