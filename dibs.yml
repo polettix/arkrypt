@@ -62,8 +62,6 @@ definitions:
          tags: ['latest', *version, *version_maj_min]
    bundle:
       from: 'arkrypt-runner:latest'
-      env:
-         GNUPGHOME: *gnupghome
       dibspacks:
          - default: basic
            path:    install/plain-copy
@@ -71,5 +69,5 @@ definitions:
            user:    root
       commit:
          tags: ['latest', *version]
-         entrypoint: ['/suexec', '-r', *gnupghome, '-A', '/mnt', '--']
+         entrypoint: ['/suexec', '-r', '/mnt/.gnupg', '-A', '/mnt', '--']
          cmd: ['/app/docker-setup.sh']
