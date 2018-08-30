@@ -26,9 +26,10 @@ sub handle_for ($value, $mode) {
    return (IO::Handle->new, 0);
 }
 
-sub run_or_die ($command, $in = undef) {
+sub run_or_die ($command, $in = undef, $out_ref = undef, $err_ref = undef) {
    my ($out, $err);
-   IPC::Run::run($command, \$in, \$out, \$err)
+   $err = 'see above' if $err_ref;
+   IPC::Run::run($command, \$in, $out_ref // \$out, $err_ref // \$err)
       or ouch 500, "error running gpg ($?: $err)";
    return unless defined wantarray;
    return $out unless wantarray;
@@ -239,6 +240,91 @@ sub command_encrypt ($cfg, $opts) {
    return 0;
 };
 
+sub s3ls ($s3base) { run_or_die([qw< aws s3 ls >, $s3base]) }
+
+sub command_pull ($cfg, $opts) {
+   my ($command_config, $rest) = get_config(pull => $opts);
+   my %config = ($cfg->%*, $command_config->%*);
+
+   ouch 400, 'no s3base available for pulling files'
+      unless length($config{s3base} // '');
+   my $s3base = $config{s3base} =~ s{/*\z}{/}rmxs; # ensure one trailing /
+
+   my @queue = $rest->@*;
+   ouch 400, "no input file" unless scalar @queue;
+
+   my %available;
+   my $list = s3ls($s3base);
+   for my $line (split m{\n}mxs, $list) {
+      next if $line =~ m{\A \s* PRE \s}mxs; # skip prefixes
+      my (undef, undef, undef, $name) = split m{\s+}, $line, 4;
+      $available{$name} = 1;
+   }
+
+   while (@queue) {
+      my $input = shift @queue;
+      if (!$available{$input}) {
+         my $digest = $input =~ s{\..*}{}rmxs;
+         my $pushed = 0;
+         for my $suffix (SUFFIX_DATA, SUFFIX_NAME) {
+            my $candidate = $digest . $suffix;
+            next unless $available{$candidate};
+            unshift @queue, $candidate;
+            ++$pushed;
+         }
+         ouch 400, "inexistent file $input" unless $pushed;
+         $input = shift @queue;
+      }
+      ouch 400, "file $input exists locally"
+         if -e $input && !$config{force};
+      run_or_die([qw< aws s3 cp >, "$s3base$input", '.'], undef, \*STDERR);
+      say {*STDOUT} $input;
+   }
+   return 0;
+}
+
+sub command_s3ls ($cfg, $opts) {
+   my ($command_config, $rest) = get_config(s3ls => $opts);
+   my %config = ($cfg->%*, $command_config->%*);
+
+   ouch 400, 'no s3base available for pulling files'
+      unless length($config{s3base} // '');
+   my $s3base = $config{s3base} =~ s{/*\z}{/}rmxs; # ensure one trailing /
+
+   print {*STDOUT} s3ls($s3base);
+}
+
+sub command_push ($cfg, $opts) {
+   my ($command_config, $rest) = get_config(push => $opts);
+   my %config = ($cfg->%*, $command_config->%*);
+
+   ouch 400, 'no s3base available for pushing files'
+      unless length($config{s3base} // '');
+   my $s3base = $config{s3base} =~ s{/*\z}{/}rmxs; # ensure one trailing /
+
+   my @queue = $rest->@*;
+   ouch 400, "no input file" unless scalar @queue;
+
+   while (@queue) {
+      my $input = shift @queue;
+      if (! -e $input) {
+         my $digest = $input =~ s{\..*}{}rmxs;
+         my $pushed = 0;
+         for my $suffix (SUFFIX_DATA, SUFFIX_NAME) {
+            my $candidate = $digest . $suffix;
+            next unless -e $candidate;
+            unshift @queue, $candidate;
+            ++$pushed;
+         }
+         ouch 400, "inexistent file $input" unless $pushed;
+         $input = shift @queue;
+      }
+      run_or_die([qw< aws s3 cp >, $input, $s3base], undef, \*STDERR);
+      say {*STDOUT} $input;
+   }
+   return 0;
+}
+
 sub main (@args) {
    my ($config, $rest) = get_config('' => \@args);
 
@@ -257,8 +343,11 @@ sub normal_command_name ($name) {
          encrypt  => [qw< e enc >],
          filename => [qw< f name >],
          list     => [qw< l ls >],
+         pull     => [qw< p get >],
+         push     => [qw< P put >],
          regen    => [qw< r regen-list >],
          squash   => [qw< s squash-list >],
+         s3ls     => [qw< rls >],
       )
    };
    return $main_command_for->{$name} // undef;
@@ -281,6 +370,10 @@ sub get_config($command, $args) {
       quiet => {
          spec => 'quiet|q!',
          default => $ENV{ARKRYPT_QUIET},
+      },
+      s3base => {
+         spec => 's3base|s3-base|b=s',
+         default => $ENV{ARKRYPT_S3BASE},
       },
       recipient => {
          spec => 'recipient|r=s@',
@@ -305,8 +398,11 @@ sub get_config($command, $args) {
       encrypt => [
          $spec_for->@{qw< armor force quiet recipient squash >},
       ],
+      pull => [ $spec_for->@{qw< force quiet s3base >}, ],
+      push => [ $spec_for->@{qw< quiet s3base >}, ],
       regen => [ $spec_for->@{qw< quiet recipient >}, ],
       squash => [ $spec_for->@{qw< quiet recipient >}, ],
+      s3ls => [ $spec_for->@{qw< s3base >}, ],
    };
 
    my %default_for;
