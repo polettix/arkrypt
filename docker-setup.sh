@@ -11,31 +11,30 @@ export GNUPGHOME=/tmp/gnupg
 mkdir "$GNUPGHOME"
 chmod og-rwx "$GNUPGHOME"
 
-if [ -f '/mnt/.gnupg' ] ; then
-   tar xC "$GNUPGHOME" -f /mnt/.gnupg
-elif [ -d '/mnt/.gnupg' ] ; then
+gnupg_src='/mnt/.gnupg'
+if [ -f "$gnupg_src" ] ; then
+   src="$gnupg_src"
+   gnupg_src="$GNUPGHOME/extract"
+   mkdir -p "$gnupg_src"
+   tar xC "$gnupg_src" -f "$src"
+fi
+
+if [ -e "$gnupg_src/pubring.gpg" ] ; then
    for f in pubring.gpg secring.gpg trustdb.gpg .gpg-v21-migrated ; do
-      path="/mnt/.gnupg/$f"
+      path="$gnupg_src/$f"
       [ -e "$path" ] || continue
       cp "$path" "$GNUPGHOME"
    done
    if [ -d "/mnt/.gnupg/private-keys-v1.d" ] ; then
       mkdir -p "$GNUPGHOME/private-keys-v1.d"
-      cp /mnt/.gnupg/private-keys-v1.d/* "$GNUPGHOME/private-keys-v1.d"
+      cp "$gnupg_src/private-keys-v1.d"/* "$GNUPGHOME/private-keys-v1.d"
    fi
-elif [ -e '/mnt/.gnupg-export' ] ; then
-   source='/mnt/.gnupg-export'
-   if [ -f "$source" ] ; then
-      file="$source"
-      source="$GNUPGHOME/exports"
-      mkdir -p "$source"
-      tar xC "$source" -f "$file"
-   fi
+elif [ -e "$gnupg_src/public" ] ; then
    for f in secret public ; do
-      [ -e "$source/$f" ] && gpg --import < "$source/$f"
+      [ -e "$gnupg_src/$f" ] && gpg --import < "$gnupg_src/$f"
    done
-   [ -e "$source/ownertrust" ] \
-      && gpg --import-ownertrust < "$source/ownertrust"
+   [ -e "$gnupg_src/ownertrust" ] \
+      && gpg --import-ownertrust < "$gnupg_src/ownertrust"
 else
    printf >&2 '%s\n' 'cannot set gnupg up properly'
 fi
