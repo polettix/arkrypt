@@ -1,0 +1,72 @@
+---
+name: arkrypt
+
+steps:
+   - build
+
+defaults:
+
+   variables:
+      - &base_image     'alpine:3.6'
+      - &version_major           '0'
+      - &version_minor           '1'
+      - &version_patch           '1'
+      - function: &version
+         ['join', '.', *version_major, *version_minor, *version_patch]
+      - function: &version_maj_min
+         ['join', '.', *version_major, *version_minor]
+
+   dibspack:
+      basic:
+         type:   git
+         origin: https://github.com/polettix/dibspack-basic.git
+         user:   user
+      prereqs: &prereqs
+         type:   git
+         origin: https://github.com/polettix/dibspack-basic.git
+         path:   prereqs
+         user:   root
+      user: &user
+         type:   git
+         origin: https://github.com/polettix/dibspack-basic.git
+         path:   wrapexec/stripexec
+         args:   ['suexec', '-u', 'app', '-h', '/app']
+         user:   root
+
+definitions:
+   build:
+      from: 'perl-builder:0.1'
+      dibspacks:
+         - default: prereqs
+           args:    ['-s', 'build']
+         - type:    immediate
+           program: |
+              #!/bin/sh
+              mkdir /app
+              cp "$1/arkrypt" "$1/cpanfile" "$1/cpanfile.snapshot" /app
+              cp "$1/.dibsignore" /app
+              chown -R app:app /app
+              adduser app ping # FIXME hack!
+         - default: basic
+           path:    perl/build
+           user:    app
+           args:    ['-w', '/app', '-V', *version]
+         - default: basic
+           path:    install/with-dibsignore
+           args:    ['--src', '/app', '--dst', {path_cache: 'perl-app'}]
+           user:    root
+   runner:
+      from: 'perl-runner:0.1'
+      dibspacks: [*prereqs]
+      commit:
+         name: arkrypt-runner
+         tags: ['latest', *version, *version_maj_min]
+   bundle:
+      from: 'arkrypt-runner:latest'
+      dibspacks:
+         - default: basic
+           path:    install/plain-copy
+           args:    [{path_cache: 'perl-app'}, '/app']
+           user:    root
+      commit:
+         tags: ['latest', *version]
