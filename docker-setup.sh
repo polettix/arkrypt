@@ -6,6 +6,7 @@ for profile in "$(dirname "$0")"/.profile.d/*.sh ; do
 done
 
 PATH="/app:$PATH"
+export GPG_TTY='/dev/console'
 
 export GNUPGHOME=/tmp/gnupg
 mkdir "$GNUPGHOME"
@@ -38,7 +39,5 @@ elif [ -e "$gnupg_src/public" ] ; then
 else
    printf >&2 '%s\n' 'cannot set gnupg up properly'
 fi
-
-export GPG_TTY='/dev/console'
 
 exec /bin/sh
