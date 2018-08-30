@@ -3,6 +3,7 @@ name: arkrypt
 
 steps:
    - build
+   - bundle
 
 defaults:
 
@@ -42,11 +43,8 @@ definitions:
          - type:    immediate
            program: |
               #!/bin/sh
-              mkdir /app
-              cp "$1/arkrypt" "$1/cpanfile" "$1/cpanfile.snapshot" /app
-              cp "$1/.dibsignore" /app
-              chown -R app:app /app
-              adduser app ping # FIXME hack!
+              cd /
+              ln -s "$1" app
          - default: basic
            path:    perl/build
            user:    app
