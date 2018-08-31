@@ -80,4 +80,4 @@ definitions:
       commit:
          tags: ['latest', *version]
          entrypoint: ['/suexec.local', '-r', '/mnt/.gnupg', '-A', '/mnt', '--']
-         cmd: ['/app/docker-setup.sh']
+         cmd: ['/app/bin/dockexec']
