@@ -1,5 +1,5 @@
 #!/bin/sh
 set -e
-apk --no-cache add perl gnupg py-pip
+apk --no-cache add perl gnupg py-pip readline
 pip install awscli
 rm -rf /root/.cache

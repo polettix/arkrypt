@@ -1,5 +1,18 @@
 # carton snapshot format: version 1.0
 DISTRIBUTIONS
+  Class-Method-Modifiers-2.12
+    pathname: E/ET/ETHER/Class-Method-Modifiers-2.12.tar.gz
+    provides:
+      Class::Method::Modifiers 2.12
+    requirements:
+      B 0
+      Carp 0
+      Exporter 0
+      ExtUtils::MakeMaker 0
+      base 0
+      perl 5.006
+      strict 0
+      warnings 0
   Data-Dump-1.23
     pathname: G/GA/GAAS/Data-Dump-1.23.tar.gz
     provides:
@@ -13,6 +26,14 @@ DISTRIBUTIONS
       ExtUtils::MakeMaker 0
       Symbol 0
       Test 0
+      perl 5.006
+  Devel-GlobalDestruction-0.14
+    pathname: H/HA/HAARG/Devel-GlobalDestruction-0.14.tar.gz
+    provides:
+      Devel::GlobalDestruction 0.14
+    requirements:
+      ExtUtils::MakeMaker 0
+      Sub::Exporter::Progressive 0.001011
       perl 5.006
   IPC-Run-20180523.0
     pathname: T/TO/TODDR/IPC-Run-20180523.0.tar.gz
@@ -77,6 +98,46 @@ DISTRIBUTIONS
       Text::ParseWords 0
       perl 5.006001
       version 0.87
+  Module-Runtime-0.016
+    pathname: Z/ZE/ZEFRAM/Module-Runtime-0.016.tar.gz
+    provides:
+      Module::Runtime 0.016
+    requirements:
+      Module::Build 0
+      Test::More 0.41
+      perl 5.006
+      strict 0
+      warnings 0
+  Moo-2.003004
+    pathname: H/HA/HAARG/Moo-2.003004.tar.gz
+    provides:
+      Method::Generate::Accessor undef
+      Method::Generate::BuildAll undef
+      Method::Generate::Constructor undef
+      Method::Generate::DemolishAll undef
+      Moo 2.003004
+      Moo::HandleMoose undef
+      Moo::HandleMoose::FakeConstructor undef
+      Moo::HandleMoose::FakeMetaClass undef
+      Moo::HandleMoose::_TypeMap undef
+      Moo::Object undef
+      Moo::Role 2.003004
+      Moo::_Utils undef
+      Moo::_mro undef
+      Moo::_strictures undef
+      Moo::sification undef
+      oo undef
+    requirements:
+      Class::Method::Modifiers 1.1
+      Devel::GlobalDestruction 0.11
+      Exporter 5.57
+      ExtUtils::MakeMaker 0
+      Module::Runtime 0.014
+      Role::Tiny 2.000004
+      Scalar::Util 0
+      Sub::Defer 2.003001
+      Sub::Quote 2.003001
+      perl 5.006
   Ouch-0.0500
     pathname: R/RI/RIZEN/Ouch-0.0500.tar.gz
     provides:
@@ -114,6 +175,39 @@ DISTRIBUTIONS
       strict 0
       warnings 0
       warnings::register 0
+  Role-Tiny-2.000006
+    pathname: H/HA/HAARG/Role-Tiny-2.000006.tar.gz
+    provides:
+      Role::Tiny 2.000006
+      Role::Tiny::With 2.000006
+    requirements:
+      Exporter 5.57
+      perl 5.006
+  Sub-Exporter-Progressive-0.001013
+    pathname: F/FR/FREW/Sub-Exporter-Progressive-0.001013.tar.gz
+    provides:
+      Sub::Exporter::Progressive 0.001013
+    requirements:
+      ExtUtils::MakeMaker 0
+  Sub-Quote-2.005001
+    pathname: H/HA/HAARG/Sub-Quote-2.005001.tar.gz
+    provides:
+      Sub::Defer 2.005001
+      Sub::Quote 2.005001
+    requirements:
+      ExtUtils::MakeMaker 0
+      Scalar::Util 0
+      perl 5.006
+  Term-ReadLine-Gnu-1.35
+    pathname: H/HA/HAYASHI/Term-ReadLine-Gnu-1.35.tar.gz
+    provides:
+      Term::ReadLine::Gnu 1.35
+      Term::ReadLine::Gnu::AU 1.35
+      Term::ReadLine::Gnu::Var 1.35
+      Term::ReadLine::Gnu::XS 1.35
+    requirements:
+      ExtUtils::MakeMaker 0
+      perl 5.008001
   Test-Trap-v0.3.3
     pathname: E/EB/EBHANSSEN/Test-Trap-v0.3.3.tar.gz
     provides:

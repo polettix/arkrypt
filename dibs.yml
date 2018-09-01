@@ -70,6 +70,15 @@ definitions:
       commit:
          name: arkrypt-runner
          tags: ['latest', *version, *version_maj_min]
+   debugger:
+      from: 'perl-builder:0.1'
+      commit:
+         name: arkrypt-debugger
+         tags: ['latest']
+      dibspacks:
+         - default: prereqs
+           args:    ['-s', 'build']
+         - default: *prereqs # for runtime dependencies
    bundle:
       from: 'arkrypt-runner:latest'
       dibspacks:

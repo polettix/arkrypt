@@ -1,1 +1,2 @@
 #!/bin/sh
+apk --no-cache add ncurses-dev readline-dev
