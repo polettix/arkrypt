@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 
-for profile in "$(dirname "$0")"/.profile.d/*.sh ; do
+for profile in "$(dirname "$0")"/../.profile.d/*.sh ; do
    . "$profile"
 done
 
