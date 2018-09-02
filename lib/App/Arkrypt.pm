@@ -207,7 +207,7 @@ sub command_pull ($self, @queue) {
       or ouch 400, 'no s3base available for pulling files';
 
    my %available;
-   my $list = $self->s3ls($s3base);
+   my $list = $self->s3ls;
    for my $line (split m{\n}mxs, $list) {
       next if $line =~ m{\A \s* PRE \s}mxs;         # skip prefixes
       my (undef, undef, undef, $name) = split m{\s+}, $line, 4;
