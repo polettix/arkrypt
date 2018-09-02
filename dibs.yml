@@ -36,24 +36,14 @@ defaults:
          user:   root
 
 definitions:
-   build:
+   builder:
       from: 'perl-builder:0.1'
       dibspacks:
          - default: prereqs
            args:    ['-s', 'build']
-         - type:    immediate
-           program: |
-              #!/bin/sh
-              cd /
-              ln -s "$1" app
-         - default: basic
-           path:    perl/build
-           user:    app
-           args:    ['-w', '/app', '-V', *version]
-         - default: basic
-           path:    install/with-dibsignore
-           args:    ['--src', '/app', '--dst', {path_cache: 'perl-app'}]
-           user:    root
+      commit:
+         name: arkrypt-builder
+         tags: ['latest', *version, *version_maj_min]
    runner:
       from: 'perl-runner:0.1'
       dibspacks:
@@ -79,6 +69,24 @@ definitions:
          - default: prereqs
            args:    ['-s', 'build']
          - default: *prereqs # for runtime dependencies
+   build:
+      from: 'arkrypt-builder:latest'
+      dibspacks:
+         - default: prereqs
+           args:    ['-s', 'build']
+         - type:    immediate
+           program: |
+              #!/bin/sh
+              cd /
+              ln -s "$1" app
+         - default: basic
+           path:    perl/build
+           user:    app
+           args:    ['-w', '/app', '-V', *version]
+         - default: basic
+           path:    install/with-dibsignore
+           args:    ['--src', '/app', '--dst', {path_cache: 'perl-app'}]
+           user:    root
    bundle:
       from: 'arkrypt-runner:latest'
       dibspacks:
