@@ -476,7 +476,7 @@ sub add_to_list ($self, @pairs) {
    my $mapping = join '', map { join(' ', $_->@*) . "\n" } @pairs;
 
    if ($self->squash) {
-      my @current = __split_list(scalar $self->load_list);
+      my @current = __split_list($self->load_list);
       @pairs = __squash_list(@current, @pairs);
       $mapping = join '', map { join(' ', $_->@*) . "\n" } @pairs;
    } ## end if ($args->{squash})
@@ -589,7 +589,7 @@ sub ibool ($self, $name, $rest) {
 sub load_list ($self) {
    my $listfile = $self->listfile;
    return '' unless -e $listfile;
-   __run_or_die(
+   scalar __run_or_die(
       [qw< gpg -o - --allow-multiple-messages --decrypt >, $listfile]);
 }
 
