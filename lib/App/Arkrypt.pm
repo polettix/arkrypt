@@ -378,13 +378,13 @@ sub interactive_pull ($self, $rest) {
    my @specs = __parse_line($rest);
    try {
       my $fs = __resolve_list_items([$self->load_squashed_list], \@specs);
-      @specs = map { $_->[0] } $fs->@*;
+      @specs = map { ref ? $_->[0] : $_ } $fs->@*;
    }
    catch {
       my $e = $_;
       die $e unless bleep =~ m{No\ secret\ key}mxs;
    };
-   $self->command_pull(@specs);
+   $self->command_pull(map { s{\A/}{}rmxs } @specs);
 } ## end sub interactive_pull
 
 sub interactive_push ($self, $rest) {
@@ -392,13 +392,13 @@ sub interactive_push ($self, $rest) {
    my @specs = __parse_line($rest);
    try {
       my $fs = __resolve_list_items([$self->load_squashed_list], \@specs);
-      @specs = map { $_->[0] } $fs->@*;
+      @specs = map { ref ? $_->[0] : $_ } $fs->@*;
    }
    catch {
       my $e = $_;
       die $e unless bleep($e) =~ m{No\ secret\ key}mxs;
    };
-   $self->command_push(@specs);
+   $self->command_push(map { s{\A/}{}rmxs } @specs);
 } ## end sub interactive_push
 
 sub interactive_quit ($self, $rest) {
@@ -717,21 +717,26 @@ sub __resolve_list_items ($list, $specs) {
       my @items = ref($item) ? $item->@* : $item;
       $id_of[$_]{$items[$_]} = $idx for 0 .. $#items;
    }
-   my (@ids, %flag);
+   my (@retval, %flag);
  SPEC:
    for my $spec ($specs->@*) {
+      if ($spec =~ m{\A/}mxs) {
+         push @retval, ($spec =~ s{\A/}{}rmxs) unless $flag{$spec}++;
+         next SPEC;
+      }
       for my $iof (@id_of) {
          defined(my $id = $iof->{$spec}) or next;
-         push @ids, $id unless $flag{$id}++;
+         push @retval, $list->[$id] unless $flag{$id}++;
          next SPEC;
       }
       if ($spec =~ m{\A [1-9]\d* \z}mxs) {
          my $id = $spec - 1;
-         push @ids, $id unless $flag{$id}++;
+         push @retval, $list->[$id] unless $flag{$id}++;
          next SPEC;
       }
       ouch 400, "no such element or id '$spec'";
    } ## end SPEC: for my $spec ($specs->@*)
+   return \@retval;
    return [$list->@[@ids]];
 } ## end sub resolve_list_items
 
