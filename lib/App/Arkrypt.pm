@@ -381,8 +381,8 @@ sub interactive_pull ($self, $rest) {
       @specs = map { $_->[0] } $fs->@*;
    }
    catch {
-      my $e;
-      die $e unless bleep($e) =~ m{No\ secret\ key}mxs;
+      my $e = $_;
+      die $e unless bleep =~ m{No\ secret\ key}mxs;
    };
    $self->command_pull(@specs);
 } ## end sub interactive_pull
