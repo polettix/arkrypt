@@ -737,7 +737,6 @@ sub __resolve_list_items ($list, $specs) {
       ouch 400, "no such element or id '$spec'";
    } ## end SPEC: for my $spec ($specs->@*)
    return \@retval;
-   return [$list->@[@ids]];
 } ## end sub resolve_list_items
 
 sub __run_or_die ($command, $in = undef, $o_ref = undef, $e_ref = undef) {
