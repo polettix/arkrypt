@@ -302,9 +302,10 @@ sub command_squash ($self, @rest) {
    my $listfile = $self->listfile;
    return unless -e $listfile;
 
+   my @list = __split_list($self->load_list);
    my $tmp = $listfile . '.tmp';
    rename $listfile, $tmp;
-   my $list = $self->add_to_list(__split_list($self->load_list));
+   my $list = $self->add_to_list(@list);
    unlink $tmp;
 
    $self->termout($list) unless $self->quiet;
