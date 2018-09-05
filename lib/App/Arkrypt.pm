@@ -395,7 +395,7 @@ sub interactive_push ($self, $rest) {
       @specs = map { $_->[0] } $fs->@*;
    }
    catch {
-      my $e;
+      my $e = $_;
       die $e unless bleep($e) =~ m{No\ secret\ key}mxs;
    };
    $self->command_push(@specs);
