@@ -31,7 +31,7 @@ has listfile => (
 
 has recipient_aref => (
    is      => 'rw',
-   default => sub { __split_recipients($ENV{ARKRYPT_RECIPIENT}) // [] },
+   default => sub { [__split_recipients($ENV{ARKRYPT_RECIPIENT})] },
 );
 
 has s3base => (
