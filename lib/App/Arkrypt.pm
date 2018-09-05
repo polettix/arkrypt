@@ -376,15 +376,29 @@ sub interactive_listfile ($self, $listfile) {
 sub interactive_pull ($self, $rest) {
    ouch 400, 'no file to pull' unless length $rest;
    my @specs = __parse_line($rest);
-   my $files = __resolve_list_items([$self->load_squashed_list], \@specs);
-   $self->command_pull(map { $_->[0] } $files->@*);
+   try {
+      my $fs = __resolve_list_items([$self->load_squashed_list], \@specs);
+      @specs = map { $_->[0] } $fs->@*;
+   }
+   catch {
+      my $e;
+      die $e unless bleep($e) =~ m{No\ secret\ key}mxs;
+   };
+   $self->command_pull(@specs);
 } ## end sub interactive_pull
 
 sub interactive_push ($self, $rest) {
    ouch 400, 'no file to push' unless length $rest;
    my @specs = __parse_line($rest);
-   my $files = __resolve_list_items([$self->load_squashed_list], \@specs);
-   $self->command_push(map { $_->[0] } $files->@*);
+   try {
+      my $fs = __resolve_list_items([$self->load_squashed_list], \@specs);
+      @specs = map { $_->[0] } $fs->@*;
+   }
+   catch {
+      my $e;
+      die $e unless bleep($e) =~ m{No\ secret\ key}mxs;
+   };
+   $self->command_push(@specs);
 } ## end sub interactive_push
 
 sub interactive_quit ($self, $rest) {
@@ -647,7 +661,7 @@ sub run ($self, @args) {
 
 sub s3ls ($self) {
    my $s3base = $self->s3base or ouch 400, 'no s3base set';
-   __run_or_die([qw< aws s3 ls >, $s3base]);
+   return scalar __run_or_die([qw< aws s3 ls >, $s3base]);
 }
 
 sub termout ($self, $message) {
